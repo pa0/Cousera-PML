@@ -2,15 +2,28 @@
 
 1. How I build the model
 1. Describe Cross validation
+    * because data had `r nrow(training)` rows I decide to split it on 2 parts
 1. Expected error
 1. Explain my choices
 
+# Analize
+
+## Explore of data
+
+
+
 ## Step 1 - set training and testing sets
 
+I need a data frame for training and for testing my models. After choosing the best I will predict on the validation (orginal: testing) set.
+
 ```{r}
-#inTrain <- createDataPartition(y=training$class, p=.8, list=F)
+library(caret)
+inTrain <- createDataPartition(y=training$classe, p=.8, list=F)
+trtr <- training[inTrain,]
+trte <- training[-inTrain,]
+
+dim(trtr); dim(trte)
 ```
-### cross validation
  
 ## Step 2 - preprocesing
 
