@@ -1,0 +1,28 @@
+# Intro
+
+1. How I build the model
+1. Describe Cross validation
+1. Expected error
+1. Explain my choices
+
+## Step 1 - set training and testing sets
+
+```{r}
+#inTrain <- createDataPartition(y=training$class, p=.8, list=F)
+```
+### cross validation
+ 
+## Step 2 - preprocesing
+
+### visualise variables 
+
+### take care of outliners and skewness
+
+## Step 3 - predict
+
+###  expected error 
+
+## Step 4 - evaluate 
+
+### accuracy 
+ 

@@ -1,22 +1,5 @@
-# Intro
+## Intro
 
- You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did.
+This is writeup of assigment in Cousera - Practical Machine Learning course.
 
-## Step 1 - set training and testing sets
-
-### cross validation
- 
-## Step 2 - preprocesing
-
-### visualise variables 
-
-### take care of outliners and skewness
-
-## Step 3 - predict
-
-###  expected error 
-
-## Step 4 - evaluate 
-
-### accuracy 
- 
+_Created 02.10.2015 by pAo_
