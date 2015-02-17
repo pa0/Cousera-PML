@@ -1,41 +1,82 @@
 # Intro
 
-1. How I build the model
-1. Describe Cross validation
-    * because data had `r nrow(training)` rows I decide to split it on 2 parts
-1. Expected error
-1. Explain my choices
+In this project, my goal was to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict they "class".
 
 # Analize
 
-## Explore of data
+## Load the packages and data
 
+```{r, setup, message=FALSE}
+library(caret)
+training <- read.csv("~/Documents/naukowe/wykłady kursy e-learning/Cousera - Machine Learning/pml-training.csv")
+testing <- read.csv("~/Documents/naukowe/wykłady kursy e-learning/Cousera - Machine Learning/pml-testing.csv")
+```
 
+## Explore the data
+I noticed that variable 'window==yes' indicates row with agregated values.
+I removed also agregated and non-relevant (1-7) variables.
+
+```{r, data}
+# only raw data (1:7 - row names, users, timestamps)
+training <- training[training$new_window=="no",]
+# remove varaiables with NA and empty
+training <- training[,apply(training, 2, function(x) !all(is.na(x)))]
+training <- training[,apply(training, 2, function(x) !all(x==""))] 
+training <- training[,8:60]
+# the same with testing data
+testing <- testing[,apply(testing, 2, function(x) !all(is.na(x)))]
+testing <- testing[,8:60]
+```
+
+Now, the cleaned training data set contains 19216 observations and 53 variables, while the testing data set contains 20 observations and 53 variables.
 
 ## Step 1 - set training and testing sets
 
 I need a data frame for training and for testing my models. After choosing the best I will predict on the validation (orginal: testing) set.
 
-```{r}
+```{r, cv, cache=TRUE, message=FALSE}
 library(caret)
-inTrain <- createDataPartition(y=training$classe, p=.8, list=F)
+set.seed(123)
+inTrain <- createDataPartition(y=training$classe, p=.6, list=F)
 trtr <- training[inTrain,]
 trte <- training[-inTrain,]
-
 dim(trtr); dim(trte)
 ```
- 
-## Step 2 - preprocesing
 
-### visualise variables 
+## Step 2 - predict
 
-### take care of outliners and skewness
+### 1 model
 
-## Step 3 - predict
+```{r, make_rpart, cache=TRUE}
+model_rpart <-  rpart::rpart(classe ~ . , data = trtr)
+pred_rpart <- predict(model_rpart, newdata = trte ,  type = 'class')
+table(pred_rpart, trte$classe)
+postResample(pred_rpart, trte$classe)
+```
 
-###  expected error 
+Accuracy 0.73 isn't much, so I used caret with random forest with 5 fold cross validation
+
+### 2 model
+
+```{r, make_rf, cache=TRUE, message=FALSE}
+control <- trainControl(method="cv", 5)
+model_rf <- train(classe ~ ., data=trtr, method="rf", trControl=control, ntree=50)
+model_rf
+```
+
+Accuracy ~= .999! This is it :-) Better accuracy has random forest model.
 
 ## Step 4 - evaluate 
 
-### accuracy 
- 
+```{r}
+# on testing data
+pred <- predict(model_rf, trte)
+confusionMatrix(pred, trte$classe)
+```
+
+Accuracy is 1. No more to say :-)
+
+```{r, eval=FALSE}
+output <- predict(model_rf, testing)
+output
+```
