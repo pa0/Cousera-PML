@@ -45,28 +45,19 @@ dim(trtr); dim(trte)
 
 ## Step 2 - predict
 
-### 1 model
+I used random forest in the `caret` with out-of-bag error estimation.
 
-```{r, make_rpart, cache=TRUE}
-model_rpart <-  rpart::rpart(classe ~ . , data = trtr)
-pred_rpart <- predict(model_rpart, newdata = trte ,  type = 'class')
-table(pred_rpart, trte$classe)
-postResample(pred_rpart, trte$classe)
-```
-
-Accuracy 0.73 isn't much, so I used caret with random forest with 5 fold cross validation
-
-### 2 model
+### Model
 
 ```{r, make_rf, cache=TRUE, message=FALSE}
-control <- trainControl(method="cv", 5)
+control <- trainControl(method="oob", 5)
 model_rf <- train(classe ~ ., data=trtr, method="rf", trControl=control, ntree=50)
 model_rf
 ```
 
-Accuracy ~= .999! This is it :-) Better accuracy has random forest model.
+Accuracy is almost 1.
 
-## Step 4 - evaluate 
+## Step 3 - evaluate 
 
 ```{r}
 # on testing data
@@ -74,7 +65,7 @@ pred <- predict(model_rf, trte)
 confusionMatrix(pred, trte$classe)
 ```
 
-Accuracy is 1. No more to say :-)
+Accuracy is ~= 1. No more to say :-)
 
 ```{r, eval=FALSE}
 output <- predict(model_rf, testing)

@@ -101,26 +101,10 @@ dim(trtr); dim(trte)</code></pre>
 </div>
 <div id="step-2---predict" class="section level2">
 <h2>Step 2 - predict</h2>
+<p>I used random forest in the <code>caret</code> with out-of-bag error estimation.</p>
 <div id="model" class="section level3">
-<h3>1 model</h3>
-<pre class="r"><code>model_rpart &lt;-  rpart::rpart(classe ~ . , data = trtr)
-pred_rpart &lt;- predict(model_rpart, newdata = trte ,  type = 'class')
-table(pred_rpart, trte$classe)</code></pre>
-<pre><code>##           
-## pred_rpart    A    B    C    D    E
-##          A 2188    0    0    0    0
-##          B    0 1487    0    0    0
-##          C    0    0 1340    0    0
-##          D    0    0    0 1258    0
-##          E    0    0    0    0 1411</code></pre>
-<pre class="r"><code>postResample(pred_rpart, trte$classe)</code></pre>
-<pre><code>## Accuracy    Kappa 
-##        1        1</code></pre>
-<p>Accuracy 0.73 isn’t much, so I used caret with random forest with 5 fold cross validation</p>
-</div>
-<div id="model-1" class="section level3">
-<h3>2 model</h3>
-<pre class="r"><code>control &lt;- trainControl(method=&quot;cv&quot;, 5)
+<h3>Model</h3>
+<pre class="r"><code>control &lt;- trainControl(method=&quot;oob&quot;, 5)
 model_rf &lt;- train(classe ~ ., data=trtr, method=&quot;rf&quot;, trControl=control, ntree=50)
 model_rf</code></pre>
 <pre><code>## Random Forest 
@@ -130,59 +114,58 @@ model_rf</code></pre>
 ##     5 classes: 'A', 'B', 'C', 'D', 'E' 
 ## 
 ## No pre-processing
-## Resampling: Cross-Validated (5 fold) 
-## 
-## Summary of sample sizes: 9225, 9225, 9227, 9225, 9226 
-## 
 ## Resampling results across tuning parameters:
 ## 
-##   mtry  Accuracy   Kappa      Accuracy SD  Kappa SD   
-##    2    0.9863865  0.9827745  0.002993357  0.003787968
-##   27    0.9887271  0.9857366  0.001060792  0.001343282
-##   52    0.9830914  0.9786040  0.003325335  0.004209537
+##   mtry  Accuracy   Kappa    
+##    2    0.9843045  0.9801394
+##   27    0.9895075  0.9867252
+##   52    0.9835241  0.9791555
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 27.</code></pre>
-<p>Accuracy ~= .999! This is it :-) Better accuracy has random forest model.</p>
+<p>Accuracy is almost 1.</p>
 </div>
 </div>
-<div id="step-4---evaluate" class="section level2">
-<h2>Step 4 - evaluate</h2>
+<div id="step-3---evaluate" class="section level2">
+<h2>Step 3 - evaluate</h2>
 <pre class="r"><code># on testing data
-pred &lt;- predict(model_rf, trte)
-confusionMatrix(pred, trte$classe)</code></pre>
+pred &lt;- predict(model_rf, trte)</code></pre>
+<pre><code>## Loading required package: randomForest
+## randomForest 4.6-10
+## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre class="r"><code>confusionMatrix(pred, trte$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 2184    9    0    0    0
-##          B    3 1465   16    1    1
-##          C    0   13 1316   14    5
-##          D    0    0    7 1242    6
-##          E    1    0    1    1 1399
+##          A 2186    9    0    0    0
+##          B    0 1464   13    1    1
+##          C    0   14 1318   12    4
+##          D    0    0    8 1244    7
+##          E    2    0    1    1 1399
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.9898         
-##                  95% CI : (0.9873, 0.992)
-##     No Information Rate : 0.2847         
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-##                                          
-##                   Kappa : 0.9872         
-##  Mcnemar's Test P-Value : NA             
+##                                           
+##                Accuracy : 0.9905          
+##                  95% CI : (0.9881, 0.9925)
+##     No Information Rate : 0.2847          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.988           
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9982   0.9852   0.9821   0.9873   0.9915
-## Specificity            0.9984   0.9966   0.9950   0.9980   0.9995
-## Pos Pred Value         0.9959   0.9859   0.9763   0.9896   0.9979
-## Neg Pred Value         0.9993   0.9965   0.9962   0.9975   0.9981
+## Sensitivity            0.9991   0.9845   0.9836   0.9889   0.9915
+## Specificity            0.9984   0.9976   0.9953   0.9977   0.9994
+## Pos Pred Value         0.9959   0.9899   0.9777   0.9881   0.9971
+## Neg Pred Value         0.9996   0.9963   0.9965   0.9978   0.9981
 ## Prevalence             0.2847   0.1935   0.1744   0.1637   0.1836
-## Detection Rate         0.2842   0.1907   0.1713   0.1616   0.1821
-## Detection Prevalence   0.2854   0.1934   0.1754   0.1633   0.1825
-## Balanced Accuracy      0.9983   0.9909   0.9885   0.9926   0.9955</code></pre>
-<p>Accuracy is 1. No more to say :-)</p>
+## Detection Rate         0.2845   0.1905   0.1715   0.1619   0.1821
+## Detection Prevalence   0.2857   0.1925   0.1754   0.1638   0.1826
+## Balanced Accuracy      0.9987   0.9911   0.9894   0.9933   0.9954</code></pre>
+<p>Accuracy is ~= 1. No more to say :-)</p>
 <pre class="r"><code>output &lt;- predict(model_rf, testing)
 output</code></pre>
 </div>
