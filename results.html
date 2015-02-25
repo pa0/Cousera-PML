@@ -165,7 +165,9 @@ pred &lt;- predict(model_rf, trte)</code></pre>
 ## Detection Rate         0.2845   0.1905   0.1715   0.1619   0.1821
 ## Detection Prevalence   0.2857   0.1925   0.1754   0.1638   0.1826
 ## Balanced Accuracy      0.9987   0.9911   0.9894   0.9933   0.9954</code></pre>
-<p>Accuracy is ~= 1. No more to say :-)</p>
+<p>Accuracy is ~= 1.</p>
+<p>Out of Sample error is (1 - accuracy) = 0.0095.</p>
+<p>No more to say :-)</p>
 <pre class="r"><code>output &lt;- predict(model_rf, testing)
 output</code></pre>
 </div>
